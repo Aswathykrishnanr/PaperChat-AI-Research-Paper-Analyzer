@@ -27,7 +27,7 @@ papers and uses AI to generate accurate, cited answers.
 
 ## 🚀 Live Demo
 
- [Try PaperChat here](#)
+ [Try PaperChat here](https://paperchat-ai-research-paper-analyzer.streamlit.app/)
 
 
 
