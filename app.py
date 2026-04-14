@@ -243,34 +243,28 @@ uploaded_files = st.file_uploader(
     label_visibility="collapsed"
 )
 
-if uploaded_files:
-    st.markdown(f'<div class="success-box">{len(uploaded_files)} papers uploaded successfully</div>',
-                unsafe_allow_html=True)
+if uploaded_files and not st.session_state.papers_processed:
+    with st.spinner("Reading and indexing your papers..."):
+        collection = create_collection("paperchat")
+        all_chunks = []
 
-    if st.button("Analyse Papers →"):
-        with st.spinner("Reading your papers..."):
-            collection = create_collection("paperchat")
-            all_chunks = []
+        for uploaded_file in uploaded_files:
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".pdf"
+            ) as tmp_file:
+                tmp_file.write(uploaded_file.read())
+                tmp_path = tmp_file.name
 
-            for uploaded_file in uploaded_files:
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
-                    tmp_file.write(uploaded_file.read())
-                    tmp_path = tmp_file.name
+            text = extract_text_from_pdf(tmp_path)
+            chunks = split_text_into_chunks(text, uploaded_file.name)
+            all_chunks.extend(chunks)
+            os.unlink(tmp_path)
 
-                text = extract_text_from_pdf(tmp_path)
-                chunks = split_text_into_chunks(text, uploaded_file.name)
-                all_chunks.extend(chunks)
-                os.unlink(tmp_path)
-
-            store_chunks(collection, all_chunks)
-            st.session_state.collection = collection
-            st.session_state.papers_processed = True
-
-        st.markdown(
-            f'<div class="success-box">✓ {len(uploaded_files)} papers analyzed — ask away!</div>',
-            unsafe_allow_html=True)
-
-st.markdown('<hr class="custom-divider">', unsafe_allow_html=True)
+        store_chunks(collection, all_chunks)
+        st.session_state.collection = collection
+        st.session_state.papers_processed = True
+        st.session_state.num_papers = len(uploaded_files)
+        st.rerun()
 
 # ── Question Section ─────────────────────────────
 if st.session_state.papers_processed:
