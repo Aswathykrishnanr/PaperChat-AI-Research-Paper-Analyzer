@@ -23,7 +23,7 @@ papers and uses AI to generate accurate, cited answers.
 - **RAG Pipeline** — LangChain
 - **Vector Database** — ChromaDB  
 - **Embeddings** — Sentence Transformers
-- **LLM** — Llama 3 via Groq
+- **LLM** — Llama 3 
 
 ## 🚀 Live Demo
 
